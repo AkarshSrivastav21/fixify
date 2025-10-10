@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu as MenuIcon, X as XIcon } from "lucide-react";
+import { Menu as MenuIcon, X as XIcon, User, ChevronDown } from "lucide-react";
 import { UserDataContext } from "../context/UserContext";
 import { UtilityDataContext } from "../context/UtilityContext";
 import LiveCity from "../components/LiveCity";
 
 const NavLinkContent = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, setUser } = useContext(UserDataContext);
   const { utility, setUtility } = useContext(UtilityDataContext);
   const navigate = useNavigate();
@@ -49,34 +50,37 @@ const NavLinkContent = () => {
   );
 
   return (
-    <header className="bg-white/90 backdrop-blur-xl shadow-2xl sticky top-0 z-50 border-b border-gray-200/50">
+    <header className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-[#10B981]/20">
       <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
         
         {/* Enhanced Logo */}
-        <div className="text-2xl font-bold flex items-center space-x-3 text-gray-800">
-          <div className="p-2 bg-gradient-to-br from-gray-800 to-black rounded-xl shadow-lg">
+        <Link to={isProvider ? "/provider-landing" : "/"} className="text-2xl font-bold flex items-center space-x-3">
+          <div className="p-2 bg-gradient-to-br from-[#0047AB] to-[#10B981] rounded-xl shadow-lg">
             <WrenchIcon className="h-6 w-6 text-white" />
           </div>
-          <span className="bg-gradient-to-r from-gray-800 to-black bg-clip-text text-transparent font-black tracking-tight">Fixify</span>
-        </div>
+          <span className="bg-gradient-to-r from-[#0047AB] to-[#10B981] bg-clip-text text-transparent font-black tracking-tight">Fixify</span>
+        </Link>
 
         {/* Enhanced Desktop Menu */}
         <div className="hidden md:flex flex-1 justify-center space-x-2">
-          <Link to="/" className="px-4 py-2 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300 transform hover:scale-105">Home</Link>
+          <Link to={isProvider ? "/provider-landing" : "/"} className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Home</Link>
 
           {/* Services only for user or guest (not provider) */}
           {!isProvider && (
-            <Link to="/serviceInfo" className="px-4 py-2 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300 transform hover:scale-105">Services</Link>
+            <Link to="/serviceInfo" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Services</Link>
           )}
 
           {/* Show Dashboard only if normal user logged in */}
           {isUser && (
-            <Link to="/dashboard" className="px-4 py-2 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300 transform hover:scale-105">Dashboard</Link>
+            <Link to="/dashboard" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Dashboard</Link>
           )}
+
+          {/* About Us - Always visible */}
+          <Link to="/about" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">About Us</Link>
 
           {/* Show Provider only if provider logged in */}
           {isProvider && (
-            <Link to="/provider-board" className="px-4 py-2 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300 transform hover:scale-105">Provider</Link>
+            <Link to="/provider-board" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Provider</Link>
           )}
         </div>
 
@@ -94,25 +98,98 @@ const NavLinkContent = () => {
             </div>
           )}
 
-          {isUser || isProvider ? (
+          {/* User Menu Dropdown */}
+          <div className="relative">
             <button
-              onClick={handleLogout}
-              className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 transform hover:scale-105"
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center space-x-2 p-2 rounded-xl hover:bg-[#10B981]/10 transition-all duration-300"
             >
-              Logout
+              <div className="w-8 h-8 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-white" />
+              </div>
+              <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
             </button>
-          ) : (
-            <>
-              <Link to="/login" className="px-4 py-2 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300">Login</Link>
-              <Link to="/signup" className="bg-gradient-to-r from-gray-800 to-black text-white px-6 py-2 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 transform hover:scale-105">
-                Register
-              </Link>
-            </>
-          )}
+            
+            {/* Dropdown Menu */}
+            {isUserMenuOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-[#10B981]/20 py-3 z-50 animate-fade-in">
+                {isUser || isProvider ? (
+                  <>
+                    <div className="px-5 py-3 border-b-2 border-[#10B981]/10 mb-2">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-gray-900">
+                            {isUser ? user?.fullname?.firstname : utility?.fullname?.firstname} {isUser ? user?.fullname?.lastname : utility?.fullname?.lastname}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {isUser ? user?.email : utility?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Link 
+                      to="/about" 
+                      className="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] transition-all duration-300 rounded-xl mx-2 mb-1"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <span className="font-medium">About Us</span>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center px-5 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 rounded-xl mx-2 font-medium"
+                    >
+                      <span>Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      to="/about" 
+                      className="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] transition-all duration-300 rounded-xl mx-2 mb-1 font-medium"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      About Us
+                    </Link>
+                    <Link 
+                      to="/login" 
+                      className="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] transition-all duration-300 rounded-xl mx-2 mb-2 font-medium"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <div className="px-2">
+                      <Link 
+                        to="/signup" 
+                        className="block px-4 py-3 text-sm text-white bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 text-center font-bold"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Register
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Hamburger */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center space-x-2">
+          {/* Mobile User Icon */}
+          <button
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className="p-2 rounded-xl hover:bg-[#10B981]/10 transition-all duration-300"
+          >
+            <div className="w-8 h-8 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+          </button>
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md hover:bg-gray-100">
             {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
           </button>
@@ -123,33 +200,90 @@ const NavLinkContent = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl shadow-2xl border-t border-gray-200/50 animate-fade-in-down">
           <div className="flex flex-col items-start p-6 space-y-3">
-            <Link to="/" className="w-full py-3 px-4 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300">Home</Link>
+            <Link to={isProvider ? "/provider-landing" : "/"} className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Home</Link>
 
             {/* Services only if not provider */}
             {!isProvider && (
-              <Link to="/serviceInfo" className="w-full py-3 px-4 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300">Services</Link>
+              <Link to="/serviceInfo" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Services</Link>
             )}
 
             {/* User only */}
             {isUser && (
-              <Link to="/dashboard" className="w-full py-3 px-4 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300">Dashboard</Link>
+              <Link to="/dashboard" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Dashboard</Link>
             )}
+
+            {/* About Us - Always visible in mobile */}
+            <Link to="/about" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">About Us</Link>
 
             {/* Provider only */}
             {isProvider && (
-              <Link to="/provider-board" className="w-full py-3 px-4 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300">Provider</Link>
+              <Link to="/provider-board" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Provider</Link>
             )}
 
-            <div className="pt-4 mt-4 border-t border-gray-200 w-full">
-              {isUser || isProvider ? (
-                <button onClick={handleLogout} className="w-full text-left py-3 px-4 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold transition-all duration-300">Logout</button>
-              ) : (
-                <>
-                  <Link to="/login" className="w-full py-3 px-4 rounded-xl hover:bg-gray-100 hover:text-gray-800 font-semibold transition-all duration-300">Login</Link>
-                  <Link to="/signup" className="w-full text-center bg-gradient-to-r from-gray-800 to-black text-white px-4 py-3 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 mt-2">Register</Link>
-                </>
-              )}
-            </div>
+            {/* Mobile User Menu */}
+            {isUserMenuOpen && (
+              <div className="pt-4 mt-4 border-t-2 border-[#10B981]/20 w-full bg-white/50 backdrop-blur-sm rounded-2xl p-4 border-2 border-[#10B981]/10">
+                {isUser || isProvider ? (
+                  <>
+                    <div className="px-4 py-3 mb-4 bg-gradient-to-r from-[#10B981]/10 to-[#0047AB]/10 rounded-2xl border border-[#10B981]/20">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-gray-900">
+                            {isUser ? user?.fullname?.firstname : utility?.fullname?.firstname} {isUser ? user?.fullname?.lastname : utility?.fullname?.lastname}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {isUser ? user?.email : utility?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Link 
+                      to="/about" 
+                      className="w-full py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 block mb-2 border border-transparent hover:border-[#10B981]/20"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      About Us
+                    </Link>
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setIsUserMenuOpen(false);
+                      }} 
+                      className="w-full text-left py-3 px-4 rounded-xl hover:bg-red-50 hover:text-red-600 font-semibold transition-all duration-300 border border-transparent hover:border-red-200"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      to="/about" 
+                      className="w-full py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 block mb-2 border border-transparent hover:border-[#10B981]/20"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      About Us
+                    </Link>
+                    <Link 
+                      to="/login" 
+                      className="w-full py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 block mb-3 border border-transparent hover:border-[#10B981]/20"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      to="/signup" 
+                      className="w-full text-center bg-gradient-to-r from-[#0047AB] to-[#10B981] text-white px-4 py-3 rounded-xl hover:shadow-lg hover:scale-105 font-bold transition-all duration-300 border-2 border-[#10B981]/30"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
 
             {(isUser || isProvider) && (
               <div className="flex items-center space-x-2 pt-4 text-gray-600">

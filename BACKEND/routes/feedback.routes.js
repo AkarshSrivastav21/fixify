@@ -6,6 +6,6 @@ const { authAdmin } = require("../middleware/admin.middleware");
 const router = express.Router();
 
 router.post("/submit", authUser, submitFeedback);
-router.get("/all", authAdmin, getAllFeedback);
+router.get("/all", getAllFeedback);
 
 module.exports = router;

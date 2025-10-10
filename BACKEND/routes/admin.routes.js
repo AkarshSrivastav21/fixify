@@ -29,4 +29,13 @@ router.delete('/services/:serviceId', adminMiddleware.authAdmin, adminController
 // Update booking
 router.put('/bookings/:bookingId', adminMiddleware.authAdmin, adminController.updateBookingStatus);
 
+// Provider stats for homepage
+router.get('/provider-stats', adminController.getProviderStats);
+
+// Provider analytics
+router.get('/provider-analytics/:providerId', adminController.getProviderAnalytics);
+
+// Booking analytics
+router.get('/booking-analytics', adminMiddleware.authAdmin, adminController.getBookingAnalytics);
+
 module.exports = router;

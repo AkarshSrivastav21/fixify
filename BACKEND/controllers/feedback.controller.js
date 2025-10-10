@@ -4,33 +4,50 @@ const bookingModel = require("../models/bookings.model");
 // Submit feedback
 const submitFeedback = async (req, res) => {
   try {
-    const { bookingId, rating, comment } = req.body;
+    const { bookingId, rating, comment, serviceCategory } = req.body;
     const userId = req.user._id;
 
-    const booking = await bookingModel.findById(bookingId).populate("providerId");
-    if (!booking || booking.status !== "completed") {
-      return res.status(400).json({ message: "Invalid booking or not completed" });
-    }
+    console.log('Feedback submission request:', { bookingId, rating, comment, serviceCategory, userId });
 
-    if (booking.userId.toString() !== userId.toString()) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
+    let providerId = null;
+    let finalServiceCategory = serviceCategory || 'general';
 
-    // Allow multiple feedback submissions - removed restriction
+    if (bookingId) {
+      // Feedback for a specific booking
+      const booking = await bookingModel.findById(bookingId).populate("providerId");
+      if (!booking) {
+        return res.status(400).json({ message: "Booking not found" });
+      }
+
+      if (booking.status !== "completed") {
+        return res.status(400).json({ message: "Booking is not completed yet" });
+      }
+
+      if (booking.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Unauthorized to submit feedback for this booking" });
+      }
+
+      providerId = booking.providerId._id;
+      finalServiceCategory = serviceCategory || booking.category;
+    } else {
+      // General feedback
+      console.log('Submitting general feedback');
+    }
 
     const feedback = new feedbackModel({
       userId,
-      providerId: booking.providerId._id,
+      providerId,
       bookingId,
       rating,
       comment,
-      serviceCategory: booking.category
+      serviceCategory: finalServiceCategory
     });
 
     await feedback.save();
     console.log('Feedback saved successfully:', feedback._id);
     res.status(201).json({ message: "Feedback submitted successfully", feedback });
   } catch (error) {
+    console.error('Error in submitFeedback:', error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -45,7 +62,7 @@ const getAllFeedback = async (req, res) => {
       .sort({ createdAt: -1 });
 
     console.log('Feedback found:', feedback.length);
-    res.json({ feedback });
+    res.json({ success: true, feedbacks: feedback });
   } catch (error) {
     console.error('Error in getAllFeedback:', error);
     res.status(500).json({ message: "Server error", error: error.message });

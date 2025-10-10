@@ -8,7 +8,9 @@ import ProvidersTab from '../components/admin/ProvidersTab';
 import ServicesTab from '../components/admin/ServicesTab';
 import BookingsTab from '../components/admin/BookingsTab';
 import FeedbackTab from '../components/admin/FeedbackTab';
+import AnalyticsTab from '../components/admin/AnalyticsTab';
 import AdminModals from '../components/admin/AdminModals';
+import '../styles/admin-animations.css';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({});
@@ -24,6 +26,7 @@ const AdminDashboard = () => {
   const [showAddService, setShowAddService] = useState(false);
   const [showEditService, setShowEditService] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -50,8 +53,8 @@ const AdminDashboard = () => {
 
       // Fetch feedback separately to avoid breaking main dashboard
       try {
-        const feedbackRes = await axios.get('http://localhost:4000/feedback/all', config);
-        setFeedback(feedbackRes.data.feedback || []);
+        const feedbackRes = await axios.get('http://localhost:4000/feedback/all');
+        setFeedback(feedbackRes.data.feedbacks || []);
       } catch (feedbackError) {
         console.error('Error fetching feedback:', feedbackError);
         setFeedback([]);
@@ -147,19 +150,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const editService = (service) => {
-    setEditingService(service);
-    setShowEditService(true);
-  };
-
-  const updateService = async (serviceData) => {
+  const editService = async (serviceId, serviceData) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.put(`http://localhost:4000/admin/services/${editingService._id}`, serviceData, {
+      const response = await axios.put(`http://localhost:4000/admin/services/${serviceId}`, serviceData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServices(services.map(service => 
-        service._id === editingService._id ? response.data.service : service
+        service._id === serviceId ? response.data.service : service
       ));
       setShowEditService(false);
       setEditingService(null);
@@ -170,6 +168,15 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleEditService = (service) => {
+    setEditingService(service);
+    setShowEditService(true);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   const logout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
@@ -177,19 +184,40 @@ const AdminDashboard = () => {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex justify-center items-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black flex justify-center items-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-400"></div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <AdminHeader onLogout={logout} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black relative overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-indigo-600/20 to-purple-800/20 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-cyan-600/20 to-blue-800/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-pink-600/10 to-rose-800/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+      </div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <AdminHeader onLogout={logout} onToggleMobileMenu={toggleMobileMenu} />
+      
+      <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6">
+        <AdminTabs 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
 
-        {activeTab === 'dashboard' && <DashboardStats stats={stats} />}
+        {activeTab === 'dashboard' && (
+          <DashboardStats
+            stats={stats}
+            bookings={bookings}
+            onShowAddUser={() => setShowAddUser(true)}
+            onShowAddProvider={() => setShowAddProvider(true)}
+            onShowAddService={() => setShowAddService(true)}
+            setActiveTab={setActiveTab}
+          />
+        )}
 
         {activeTab === 'users' && (
           <UsersTab 
@@ -211,7 +239,8 @@ const AdminDashboard = () => {
           <ServicesTab 
             services={services} 
             onDeleteService={deleteService} 
-            onShowAddService={() => setShowAddService(true)} 
+            onShowAddService={() => setShowAddService(true)}
+            onEditService={handleEditService}
           />
         )}
 
@@ -219,10 +248,13 @@ const AdminDashboard = () => {
 
         {activeTab === 'feedback' && <FeedbackTab feedback={feedback} />}
 
+        {activeTab === 'analytics' && <AnalyticsTab />}
+
         <AdminModals 
           showAddUser={showAddUser} setShowAddUser={setShowAddUser} addUser={addUser}
           showAddProvider={showAddProvider} setShowAddProvider={setShowAddProvider} addProvider={addProvider}
           showAddService={showAddService} setShowAddService={setShowAddService} addService={addService}
+          showEditService={showEditService} setShowEditService={setShowEditService} editService={editService} editingService={editingService}
         />
       </div>
     </div>

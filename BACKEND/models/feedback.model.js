@@ -9,12 +9,12 @@ const feedbackSchema = new mongoose.Schema({
   providerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "utility",
-    required: true
+    required: false
   },
   bookingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Booking",
-    required: true
+    required: false
   },
   rating: {
     type: Number,

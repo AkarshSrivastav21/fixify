@@ -21,7 +21,8 @@ const ServiceInfo = ({ location, profession }) => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/services`);
+        const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
+        const response = await axios.get(`${baseUrl}/services`);
         setServices(response.data.services || []);
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -74,8 +75,9 @@ const ServiceInfo = ({ location, profession }) => {
         preferredTime: bookingData.time,
       };
 
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/bookings/booking`,
+        `${baseUrl}/bookings/booking`,
         payload
       );
 

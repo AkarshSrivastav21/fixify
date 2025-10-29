@@ -28,8 +28,9 @@ export default function UserDashboard() {
 
     const fetchBookings = async () => {
       try {
+        const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
         const res = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/bookings/user/${userId}`
+          `${baseUrl}/bookings/user/${userId}`
         );
         const bookingsData = res.data.bookings || res.data || [];
         setBookings(bookingsData);
@@ -49,8 +50,9 @@ export default function UserDashboard() {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
     
     try {
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/bookings/${bookingId}/action`,
+        `${baseUrl}/bookings/${bookingId}/action`,
         { action: "cancel" }
       );
       setBookings((prev) =>
@@ -87,8 +89,9 @@ export default function UserDashboard() {
 
       console.log('Submitting feedback:', submitData);
 
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/feedback/submit`,
+        `${baseUrl}/feedback/submit`,
         submitData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

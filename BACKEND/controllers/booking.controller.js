@@ -108,24 +108,42 @@ exports.bookingAction = async (req, res) => {
         );
       }
     } else if (action === "reject") {
-      // Find another active provider with same profession
+      // Find another active provider with same profession immediately
+      const excludeProviders = [...(booking.rejectedBy || []), booking.providerId];
       const newProvider = await Utility.findOne({
         profession: booking.category.toLowerCase(),
         status: "active",
-        _id: { $ne: booking.providerId } // Exclude current provider
+        _id: { $nin: excludeProviders } // Exclude current and previously rejected providers
       });
 
       if (newProvider) {
-        // Reassign to new provider
+        // Add current provider to rejected list first
+        booking.rejectedBy = booking.rejectedBy || [];
+        booking.rejectedBy.push(booking.providerId);
+        
+        // Reassign to new provider immediately
         booking.providerId = newProvider._id;
         booking.status = "pending";
+        booking.updatedAt = new Date();
         
-        // Notify new provider via socket.io
+        // Save booking first
+        await booking.save();
+        
+        // Then notify new provider via socket.io immediately
         if (newProvider.socketId && global.io) {
-          global.io.to(newProvider.socketId).emit("newBooking", booking);
+          const freshBooking = {
+            ...booking.toObject(),
+            _id: booking._id,
+            userId: booking.userId,
+            providerId: newProvider._id,
+            status: "pending",
+            isReassigned: true,
+            updatedAt: new Date()
+          };
+          global.io.to(newProvider.socketId).emit("newBooking", freshBooking);
         }
         
-        // Send email notification to new provider
+        // Send email notification to new provider (async, don't wait)
         if (booking.userId && newProvider.email) {
           const bookingDetails = {
             category: booking.category,
@@ -136,15 +154,19 @@ exports.bookingAction = async (req, res) => {
             details: booking.details
           };
           
+          // Don't await this - send async
           emailService.sendBookingNotificationToProvider(
             newProvider.email,
             `${newProvider.fullname.firstname} ${newProvider.fullname.lastname}`,
             bookingDetails
-          );
+          ).catch(err => console.log('Email send error:', err));
         }
+        
+        console.log(`Booking ${booking._id} reassigned from ${booking.rejectedBy[booking.rejectedBy.length-1]} to ${newProvider._id}`);
       } else {
         // No other provider available
         booking.status = "rejected";
+        console.log(`No other active ${booking.category} provider available`);
       }
     } else if (action === "complete") {
       booking.status = "completed";

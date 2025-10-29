@@ -29,8 +29,9 @@ const Usersignup = () => {
    
 
     try {
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/users/register`,
+        `${baseUrl}/users/register`,
         newUser
       );
       if (response.status === 201) {

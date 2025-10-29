@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { UserDataContext } from "../context/UserContext";
 import NavLinkContent from "./NavLinkContent";
+import DashboardHeroShimmer from "../components/DashboardHeroShimmer";
 import { Calendar, Clock, User, MapPin, Phone, Mail, Star, TrendingUp, CheckCircle, XCircle, AlertCircle, MessageSquare } from "lucide-react";
 
 export default function UserDashboard() {
@@ -9,6 +10,15 @@ export default function UserDashboard() {
   const [bookings, setBookings] = useState([]);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackData, setFeedbackData] = useState({ bookingId: '', rating: 5, comment: '' });
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+
+  // Force shimmer display for better UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDashboardLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const userId = user?._id;
 
@@ -26,6 +36,8 @@ export default function UserDashboard() {
       } catch (err) {
         console.error("❌ Failed to fetch bookings:", err);
          setBookings([]); 
+      } finally {
+        // Don't set loading false here, let the timer handle it
       }
     };
 
@@ -165,11 +177,14 @@ export default function UserDashboard() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="backdrop-blur-2xl rounded-[2rem] p-8 relative" style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-            border: '1px solid rgba(255,255,255,0.3)'
-          }}>
+          {dashboardLoading ? (
+            <DashboardHeroShimmer />
+          ) : (
+            <div className="backdrop-blur-2xl rounded-[2rem] p-8 relative" style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+              border: '1px solid rgba(255,255,255,0.3)'
+            }}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="mb-6 md:mb-0">
                 <div className="flex items-center mb-4">
@@ -232,6 +247,7 @@ export default function UserDashboard() {
               </div>
             </div>
           </div>
+          )}
         </div>
 
         {/* Bookings Section */}

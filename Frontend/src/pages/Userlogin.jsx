@@ -23,8 +23,9 @@ const Userlogin = () => {
     setPassword('');
 
     try {
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/users/login`,
+        `${baseUrl}/users/login`,
         userData
       );
 

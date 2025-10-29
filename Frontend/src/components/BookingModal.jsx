@@ -137,8 +137,10 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
           };
           
           setSelectedAddress(currentLocationAddress);
-          setFormData({ ...formData, address: currentLocationAddress.address });
+          setFormData(prev => ({ ...prev, address: addressText }));
           setIsGettingLocation(false);
+          
+          console.log('Current location set:', addressText);
           
         } catch (error) {
           console.error('Error processing location:', error);
@@ -200,7 +202,13 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
       return;
     }
 
-    onConfirm(formData);
+    // Ensure we're sending the actual address, not a placeholder
+    const finalFormData = {
+      ...formData,
+      address: selectedAddress?.address || formData.address
+    };
+
+    onConfirm(finalFormData);
   };
 
   return (
@@ -300,59 +308,7 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
                 </button>
               </div>
 
-              {/* Saved Addresses */}
-              <div className="space-y-3 mb-4">
-                {isLoadingAddresses ? (
-                  <div className="p-4 border rounded-xl">
-                    <div className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  </div>
-                ) : savedAddresses.length > 0 ? (
-                  savedAddresses.map((address) => (
-                    <div
-                      key={address.id}
-                      onClick={() => handleAddressSelect(address)}
-                      className={`p-4 border rounded-xl cursor-pointer transition-all ${
-                        selectedAddress?.id === address.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="px-2 py-1 bg-gray-100 text-xs font-semibold rounded">
-                              {address.type}
-                            </span>
-                            <span className="font-semibold">{address.name}</span>
-                            {address.mobile !== 'N/A' && (
-                              <span className="text-sm text-gray-500">{address.mobile}</span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-700">
-                            {address.address}
-                          </p>
-                        </div>
-                        <input
-                          type="radio"
-                          name="selectedAddress"
-                          checked={selectedAddress?.id === address.id}
-                          onChange={() => handleAddressSelect(address)}
-                          className="text-blue-600"
-                        />
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-4 border rounded-xl text-center text-gray-500">
-                    <p className="text-sm">No previous addresses found</p>
-                    <p className="text-xs">Add a new address below</p>
-                  </div>
-                )}
-              </div>
+
 
               {/* Add New Address */}
               {!showAddAddress ? (

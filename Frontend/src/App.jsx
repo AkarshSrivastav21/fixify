@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import "./styles/shimmer.css";
 import Portal from "./pages/Portal";
 import Usersignup from "./pages/Usersignup";
 import Userlogin from "./pages/Userlogin";

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import BookingModal from '../components/BookingModal';
 import { UserDataContext } from '../context/UserContext';
+import { ServiceCardShimmer } from '../components/ShimmerUI';
 import axios from 'axios';
 
 const MainContent = () => {
@@ -17,6 +18,15 @@ const MainContent = () => {
   const [bookingError, setBookingError] = useState('');
   const [serviceFeedbacks, setServiceFeedbacks] = useState({});
   const [allFeedbacks, setAllFeedbacks] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+
+  // Force shimmer display
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setServicesLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
   const heroImages = [
     'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1920&q=80',
     'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80',
@@ -55,6 +65,8 @@ const MainContent = () => {
         }
       } catch (error) {
         console.error('Error fetching feedbacks:', error);
+      } finally {
+        // Don't set loading false here, let the timer handle it
       }
     };
     fetchServiceFeedbacks();
@@ -274,7 +286,7 @@ const MainContent = () => {
               
               <div className="flex flex-col sm:flex-row gap-6 mb-12">
                 <button 
-                  onClick={() => navigate('/services')}
+                  onClick={() => navigate('/serviceInfo')}
                   className="px-10 py-5 bg-[#10B981] text-white font-bold rounded-2xl hover:bg-[#0d9668] transition-all duration-300 shadow-2xl flex items-center justify-center gap-3"
                 >
                   <Wrench className="w-5 h-5" />
@@ -343,11 +355,14 @@ const MainContent = () => {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {services.map((service, i) => (
-              <div
-                key={i}
-                className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden"
-              >
+            {servicesLoading ? (
+              [...Array(6)].map((_, i) => <ServiceCardShimmer key={i} />)
+            ) : (
+              services.map((service, i) => (
+                <div
+                  key={i}
+                  className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden"
+                >
                 {/* Rating Badge */}
                 <div className="absolute top-4 right-4 z-20">
                   <div className="flex items-center px-3 py-2 bg-gradient-to-r from-[#0047AB] to-[#10B981] backdrop-blur-md rounded-full shadow-xl">
@@ -427,7 +442,8 @@ const MainContent = () => {
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -517,15 +533,19 @@ const MainContent = () => {
           }}
           onConfirm={async (bookingData) => {
             try {
+              console.log('Booking data being sent:', bookingData);
+              console.log('Address being sent:', bookingData.address);
+              
               const response = await axios.post(
                 `${import.meta.env.VITE_BASE_URL}/bookings/create`,
                 {
                   userId: userData._id,
-                  serviceCategory: selectedService.category,
-                  date: bookingData.date,
-                  time: bookingData.time,
+                  category: selectedService.category,
+                  serviceId: selectedService.name,
+                  preferredDate: bookingData.date,
+                  preferredTime: bookingData.time,
                   location: bookingData.address,
-                  notes: bookingData.notes
+                  details: bookingData.notes
                 },
                 {
                   headers: {

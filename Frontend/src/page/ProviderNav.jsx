@@ -1,52 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Sparkles, LogOut, BarChart3, User, Wrench } from "lucide-react";
+
+const NavItem = React.memo(({ to, label, icon: Icon }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Link
+      to={to}
+      className="relative px-5 py-2.5 rounded-full font-bold transition-all duration-500 transform"
+      style={{
+        color: hovered ? "#fff" : "#065f46",
+        background: hovered
+          ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+          : "transparent",
+        boxShadow: hovered
+          ? "0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 3px rgba(16, 185, 129, 0.1)"
+          : "none",
+        transform: hovered ? "translateY(-2px) scale(1.05)" : "translateY(0)"
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span className="relative z-10 flex items-center gap-2">
+        {Icon && <Icon className="w-4 h-4" />}
+        {label}
+        {hovered && <Sparkles className="w-4 h-4 animate-pulse" />}
+      </span>
+      {hovered && (
+        <span
+          className="absolute inset-0 rounded-full opacity-50 blur-xl"
+          style={{
+            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+          }}
+        />
+      )}
+    </Link>
+  );
+});
 
 const ProviderNav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("utilityData");
     localStorage.removeItem("token");
     navigate("/");
-  };
-
-  const NavItem = ({ to, label, icon: Icon }) => {
-    const [hovered, setHovered] = useState(false);
-    return (
-      <Link
-        to={to}
-        className="relative px-5 py-2.5 rounded-full font-bold transition-all duration-500 transform"
-        style={{
-          color: hovered ? "#fff" : "#065f46",
-          background: hovered
-            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-            : "transparent",
-          boxShadow: hovered
-            ? "0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 3px rgba(16, 185, 129, 0.1)"
-            : "none",
-          transform: hovered ? "translateY(-2px) scale(1.05)" : "translateY(0)"
-        }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <span className="relative z-10 flex items-center gap-2">
-          {Icon && <Icon className="w-4 h-4" />}
-          {label}
-          {hovered && <Sparkles className="w-4 h-4 animate-pulse" />}
-        </span>
-        {hovered && (
-          <span
-            className="absolute inset-0 rounded-full opacity-50 blur-xl"
-            style={{
-              background: "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-            }}
-          />
-        )}
-      </Link>
-    );
-  };
+  }, [navigate]);
 
   return (
     <>
@@ -70,7 +70,7 @@ const ProviderNav = () => {
           boxShadow: "0 8px 32px rgba(0,0,0,0.3)"
         }}
       >
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <nav className="container mx-auto px-6 py-6 flex justify-between items-center">
           {/* Left: Static Logo */}
           <Link to="/provider-landing" className="flex items-center space-x-2">
                         <span className="text-2xl font-extrabold text-white tracking-tight">
@@ -171,4 +171,4 @@ const ProviderNav = () => {
   );
 };
 
-export default ProviderNav;
+export default React.memo(ProviderNav);

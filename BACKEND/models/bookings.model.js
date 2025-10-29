@@ -10,6 +10,7 @@ const bookingSchema = new mongoose.Schema({
   preferredDate: { type: String },
   preferredTime: { type: String },
   status: { type: String, enum: ["pending", "confirmed", "rejected", "cancelled", "completed"], default: "pending" },
+  rejectedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "utility" }],
   createdAt: { type: Date, default: Date.now },
 },
 

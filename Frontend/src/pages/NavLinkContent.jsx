@@ -32,9 +32,11 @@ const NavLinkContent = () => {
   // ✅ Decide who is logged in (check localStorage for current session type)
   const currentUtilityData = localStorage.getItem('utilityData');
   const currentUserData = localStorage.getItem('userData');
+  const token = localStorage.getItem('token');
   
-  const isProvider = currentUtilityData && utility?.email;
-  const isUser = currentUserData && user?.email && !currentUtilityData;
+  const isProvider = token && currentUtilityData && utility?.email && !currentUserData;
+  const isUser = token && currentUserData && user?.email && !currentUtilityData;
+  const isGuest = !token || (!currentUtilityData && !currentUserData);
 
   const WrenchIcon = (props) => (
     <svg {...props} width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -51,36 +53,36 @@ const NavLinkContent = () => {
 
   return (
     <header className="bg-white/95 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-[#10B981]/20">
-      <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
+      <nav className="container mx-auto px-6 py-6 flex justify-between items-center">
         
         {/* Enhanced Logo */}
-        <Link to={isProvider ? "/provider-landing" : "/"} className="text-2xl font-bold flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-[#0047AB] to-[#10B981] rounded-xl shadow-lg">
-            <WrenchIcon className="h-6 w-6 text-white" />
+        <Link to={isProvider ? "/provider-landing" : "/"} className="text-3xl font-bold flex items-center space-x-3">
+          <div className="p-3 bg-gradient-to-br from-[#0047AB] to-[#10B981] rounded-xl shadow-lg">
+            <WrenchIcon className="h-8 w-8 text-white" />
           </div>
           <span className="bg-gradient-to-r from-[#0047AB] to-[#10B981] bg-clip-text text-transparent font-black tracking-tight">Fixify</span>
         </Link>
 
         {/* Enhanced Desktop Menu */}
         <div className="hidden md:flex flex-1 justify-center space-x-2">
-          <Link to={isProvider ? "/provider-landing" : "/"} className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Home</Link>
+          <Link to={isProvider ? "/provider-landing" : "/"} className="px-6 py-3 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold text-lg transition-all duration-300 transform hover:scale-105">Home</Link>
 
           {/* Services only for user or guest (not provider) */}
-          {!isProvider && (
-            <Link to="/serviceInfo" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Services</Link>
+          {(isUser || isGuest) && (
+            <Link to="/serviceInfo" className="px-6 py-3 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold text-lg transition-all duration-300 transform hover:scale-105">Services</Link>
           )}
 
           {/* Show Dashboard only if normal user logged in */}
           {isUser && (
-            <Link to="/dashboard" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Dashboard</Link>
+            <Link to="/dashboard" className="px-6 py-3 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold text-lg transition-all duration-300 transform hover:scale-105">Dashboard</Link>
           )}
 
           {/* About Us - Always visible */}
-          <Link to="/about" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">About Us</Link>
+          <Link to="/about" className="px-6 py-3 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold text-lg transition-all duration-300 transform hover:scale-105">About Us</Link>
 
           {/* Show Provider only if provider logged in */}
-          {isProvider && (
-            <Link to="/provider-board" className="px-4 py-2 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 transform hover:scale-105">Provider</Link>
+          {isProvider && !isGuest && (
+            <Link to="/provider-board" className="px-6 py-3 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold text-lg transition-all duration-300 transform hover:scale-105">Provider</Link>
           )}
         </div>
 
@@ -104,8 +106,8 @@ const NavLinkContent = () => {
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="flex items-center space-x-2 p-2 rounded-xl hover:bg-[#10B981]/10 transition-all duration-300"
             >
-              <div className="w-8 h-8 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-white" />
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -203,7 +205,7 @@ const NavLinkContent = () => {
             <Link to={isProvider ? "/provider-landing" : "/"} className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Home</Link>
 
             {/* Services only if not provider */}
-            {!isProvider && (
+            {(isUser || isGuest) && (
               <Link to="/serviceInfo" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Services</Link>
             )}
 
@@ -216,7 +218,7 @@ const NavLinkContent = () => {
             <Link to="/about" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">About Us</Link>
 
             {/* Provider only */}
-            {isProvider && (
+            {isProvider && !isGuest && (
               <Link to="/provider-board" className="w-full py-3 px-4 rounded-xl hover:bg-[#10B981]/10 hover:text-[#0047AB] font-semibold transition-all duration-300">Provider</Link>
             )}
 

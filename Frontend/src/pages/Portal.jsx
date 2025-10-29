@@ -10,42 +10,9 @@ const Portal = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in and redirect accordingly
-    const utilityData = localStorage.getItem('utilityData');
-    const userData = localStorage.getItem('userData');
-    const token = localStorage.getItem('token');
-
-    // Clear any conflicting data first
-    if (utilityData && userData) {
-      // If both exist, prioritize the most recent login
-      const utilityParsed = JSON.parse(utilityData);
-      const userParsed = JSON.parse(userData);
-      
-      // Clear the older data
-      localStorage.removeItem('userData');
-      localStorage.removeItem('utilityData');
-      
-      // Keep only provider data and redirect
-      localStorage.setItem('utilityData', JSON.stringify(utilityParsed));
-      navigate('/provider-landing');
-      return;
-    }
-
-    if (utilityData && token) {
-      // Provider is logged in, redirect to provider home
-      navigate('/provider-landing');
-      return;
-    }
-    
-    if (userData && token) {
-      // User is logged in, show user home (current portal)
-      setIsLoading(false);
-      return;
-    }
-
-    // Guest user, show default portal
+    // Just set loading to false, no automatic redirects
     setIsLoading(false);
-  }, [navigate]);
+  }, []);
 
   if (isLoading) {
     return (

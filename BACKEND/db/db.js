@@ -2,7 +2,12 @@
 
 
  function connectToDb() {
-     mongoose.connect(process.env.MONGODB_URI || process.env.DB_CONNECT)
+     mongoose.connect(process.env.MONGODB_URI || process.env.DB_CONNECT, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        maxPoolSize: 10,
+        retryWrites: true
+     })
      .then(() => {
         const isAtlas = process.env.DB_CONNECT.includes('mongodb+srv');
         const dbName = process.env.DB_CONNECT.split('/').pop().split('?')[0];

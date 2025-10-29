@@ -32,7 +32,7 @@ const UtilitySignup = () => {
       profession: profession,
       experience: experience,
     };
-    console.log(newUser);
+   
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/utilities/register`,

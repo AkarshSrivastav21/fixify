@@ -76,12 +76,14 @@ export default function ProviderDashboard() {
     if (!providerId) return;
 
     // Initialize socket connection
-    socket = io("http://localhost:4000");
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_BASE_URL;
+    socket = io(socketUrl);
 
     socket.emit("registerProvider", providerId);
 
+    const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
     axios
-      .get(`http://localhost:4000/bookings/provider/${providerId}`)
+      .get(`${baseUrl}/bookings/provider/${providerId}`)
       .then((res) => setBookings(res.data.bookings))
       .catch((err) => console.error("❌ Fetch bookings failed:", err));
 
@@ -114,7 +116,8 @@ export default function ProviderDashboard() {
     
     const fetchAnalytics = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/provider-analytics/${providerId}`);
+        const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
+        const response = await axios.get(`${baseUrl}/admin/provider-analytics/${providerId}`);
         setAnalytics(response.data);
       } catch (error) {
         console.error('Error fetching analytics:', error);
@@ -128,7 +131,8 @@ export default function ProviderDashboard() {
   const updateBookingStatus = async (bookingId, action) => {
     try {
       console.log(`🔄 Updating booking ${bookingId} with action: ${action}`);
-      const response = await axios.post(`http://localhost:4000/bookings/${bookingId}/action`, { action });
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
+      const response = await axios.post(`${baseUrl}/bookings/${bookingId}/action`, { action });
       console.log('✅ Response:', response.data);
       
       setBookings((prev) =>
@@ -145,8 +149,9 @@ export default function ProviderDashboard() {
     const newStatus = status === "active" ? "inactive" : "active";
 
     try {
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       const res = await axios.patch(
-        `http://localhost:4000/utilities/${providerId}/status`,
+        `${baseUrl}/utilities/${providerId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );

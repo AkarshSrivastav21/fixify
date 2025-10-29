@@ -34,8 +34,9 @@ const UtilitySignup = () => {
     };
    
     try {
+      const baseUrl = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/utilities/register`,
+        `${baseUrl}/utilities/register`,
         newUser
       );
 

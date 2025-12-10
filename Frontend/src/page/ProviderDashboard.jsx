@@ -266,10 +266,18 @@ export default function ProviderDashboard() {
                     <div className="absolute inset-0 rounded-2xl blur-2xl opacity-75 group-hover:opacity-100 transition-opacity duration-300" style={{
                       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
                     }}></div>
-                    <div className="relative p-4 rounded-2xl shadow-2xl" style={{
+                    <div className="relative w-20 h-20 rounded-2xl shadow-2xl overflow-hidden flex items-center justify-center" style={{
                       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
                     }}>
-                      <Briefcase className="h-10 w-10 text-white" />
+                      {provider?.profileImage ? (
+                        <img 
+                          src={provider.profileImage} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover" 
+                        />
+                      ) : (
+                        <Briefcase className="h-10 w-10 text-white" />
+                      )}
                     </div>
                   </div>
                   <div className="ml-6">
@@ -287,6 +295,17 @@ export default function ProviderDashboard() {
                       </div>
                     </div>
                   </div>
+                </div>
+                
+                {/* Settings Button */}
+                <div className="mb-4">
+                  <button
+                    onClick={() => window.location.href = '/provider-settings'}
+                    className="flex items-center px-4 py-2 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-xl"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Profile Settings
+                  </button>
                 </div>
                 
                 {/* Status Toggle */}

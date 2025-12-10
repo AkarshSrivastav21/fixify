@@ -26,6 +26,23 @@ const UserContext = ({ children }) => {
     setIsLoading(false);
   }, []);
 
+  // Listen for localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        try {
+          setUser(JSON.parse(userData));
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");

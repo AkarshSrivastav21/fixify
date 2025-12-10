@@ -21,6 +21,8 @@ import ProviderHome from "./page/ProviderHome";
 import ProtectedRouteProvider from "./components/ProtectedRouteProvider";
 import ProtectedRouteAdmin from "./components/ProtectedRouteAdmin";
 import AboutUs from "./pages/AboutUs";
+import Settings from "./pages/Settings";
+import ProviderSettings from "./pages/ProviderSettings";
 
 const App = () => {
   return (
@@ -63,6 +65,8 @@ const App = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<ProtectedRouteAdmin><AdminDashboard /></ProtectedRouteAdmin>} />
       <Route path="/about" element={<AboutUs />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/provider-settings" element={<ProtectedRouteProvider><ProviderSettings /></ProtectedRouteProvider>} />
     </Routes>
   );
 };

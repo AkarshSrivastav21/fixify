@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
-const Toast = ({ message, type = 'success', duration = 3000, onClose }) => {
+const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -13,30 +13,48 @@ const Toast = ({ message, type = 'success', duration = 3000, onClose }) => {
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const icons = {
-    success: <CheckCircle className="w-5 h-5 text-green-400" />,
-    error: <XCircle className="w-5 h-5 text-red-400" />,
-    warning: <AlertCircle className="w-5 h-5 text-yellow-400" />
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="w-6 h-6 text-green-600" />;
+      case 'error':
+        return <XCircle className="w-6 h-6 text-red-600" />;
+      case 'warning':
+        return <AlertCircle className="w-6 h-6 text-yellow-600" />;
+      default:
+        return <CheckCircle className="w-6 h-6 text-green-600" />;
+    }
   };
 
-  const bgColors = {
-    success: 'bg-green-900/80 border-green-700',
-    error: 'bg-red-900/80 border-red-700',
-    warning: 'bg-yellow-900/80 border-yellow-700'
+  const getBgColor = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-50 border-green-200';
+      case 'error':
+        return 'bg-red-50 border-red-200';
+      case 'warning':
+        return 'bg-yellow-50 border-yellow-200';
+      default:
+        return 'bg-green-50 border-green-200';
+    }
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 transition-all duration-300 ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
-      <div className={`${bgColors[type]} backdrop-blur-xl rounded-2xl p-4 border shadow-2xl max-w-sm`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {icons[type]}
-            <p className="text-white font-medium">{message}</p>
-          </div>
-          <button onClick={() => setIsVisible(false)} className="text-gray-400 hover:text-white">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+    <div className={`fixed top-4 right-4 z-50 transition-all duration-300 ${
+      isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+    }`}>
+      <div className={`flex items-center p-4 rounded-2xl shadow-2xl border-2 backdrop-blur-xl ${getBgColor()} min-w-80`}>
+        {getIcon()}
+        <span className="ml-3 text-gray-800 font-semibold text-lg">{message}</span>
+        <button
+          onClick={() => {
+            setIsVisible(false);
+            setTimeout(onClose, 300);
+          }}
+          className="ml-4 text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          ×
+        </button>
       </div>
     </div>
   );

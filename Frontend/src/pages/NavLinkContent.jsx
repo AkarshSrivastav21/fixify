@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu as MenuIcon, X as XIcon, User, ChevronDown } from "lucide-react";
+import { Menu as MenuIcon, X as XIcon, User, ChevronDown, Settings } from "lucide-react";
 import { UserDataContext } from "../context/UserContext";
 import { UtilityDataContext } from "../context/UtilityContext";
 import LiveCity from "../components/LiveCity";
@@ -13,12 +13,27 @@ const NavLinkContent = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear all localStorage items
+    // Save profile data before logout
+    const currentUserData = localStorage.getItem('userData');
+    const currentUtilityData = localStorage.getItem('utilityData');
+    
+    // Clear auth tokens only
     localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    localStorage.removeItem("utilityData");
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
+    
+    // Store profile data temporarily
+    if (currentUserData) {
+      localStorage.setItem('tempUserProfile', currentUserData);
+    }
+    if (currentUtilityData) {
+      localStorage.setItem('tempUtilityProfile', currentUtilityData);
+      localStorage.setItem('tempProviderProfile', currentUtilityData);
+    }
+    
+    // Clear user data
+    localStorage.removeItem("userData");
+    localStorage.removeItem("utilityData");
     
     // Clear context states
     setUser(null);
@@ -106,8 +121,16 @@ const NavLinkContent = () => {
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="flex items-center space-x-2 p-2 rounded-xl hover:bg-[#10B981]/10 transition-all duration-300"
             >
-              <div className="w-10 h-10 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center overflow-hidden">
+                {(isUser && user?.profileImage) || (isProvider && utility?.profileImage) ? (
+                  <img 
+                    src={isUser ? user.profileImage : utility.profileImage} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <User className="w-6 h-6 text-white" />
+                )}
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -119,8 +142,16 @@ const NavLinkContent = () => {
                   <>
                     <div className="px-5 py-3 border-b-2 border-[#10B981]/10 mb-2">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-white" />
+                        <div className="w-10 h-10 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center overflow-hidden">
+                          {(isUser && user?.profileImage) || (isProvider && utility?.profileImage) ? (
+                            <img 
+                              src={isUser ? user.profileImage : utility.profileImage} 
+                              alt="Profile" 
+                              className="w-full h-full object-cover" 
+                            />
+                          ) : (
+                            <User className="w-5 h-5 text-white" />
+                          )}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-gray-900">
@@ -132,13 +163,17 @@ const NavLinkContent = () => {
                         </div>
                       </div>
                     </div>
-                    <Link 
-                      to="/about" 
+                    <button
+                      onClick={() => {
+                        const settingsRoute = isProvider ? '/provider-settings' : '/settings';
+                        navigate(settingsRoute);
+                        setIsUserMenuOpen(false);
+                      }}
                       className="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] transition-all duration-300 rounded-xl mx-2 mb-1"
-                      onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <span className="font-medium">About Us</span>
-                    </Link>
+                      <Settings className="w-4 h-4 mr-2" />
+                      <span className="font-medium">Settings</span>
+                    </button>
                     <button
                       onClick={() => {
                         handleLogout();
@@ -188,8 +223,16 @@ const NavLinkContent = () => {
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
             className="p-2 rounded-xl hover:bg-[#10B981]/10 transition-all duration-300"
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center overflow-hidden">
+              {(isUser && user?.profileImage) || (isProvider && utility?.profileImage) ? (
+                <img 
+                  src={isUser ? user.profileImage : utility.profileImage} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                <User className="w-5 h-5 text-white" />
+              )}
             </div>
           </button>
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md hover:bg-gray-100">
@@ -229,8 +272,16 @@ const NavLinkContent = () => {
                   <>
                     <div className="px-4 py-3 mb-4 bg-gradient-to-r from-[#10B981]/10 to-[#0047AB]/10 rounded-2xl border border-[#10B981]/20">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-white" />
+                        <div className="w-12 h-12 bg-gradient-to-r from-[#0047AB] to-[#10B981] rounded-full flex items-center justify-center overflow-hidden">
+                          {(isUser && user?.profileImage) || (isProvider && utility?.profileImage) ? (
+                            <img 
+                              src={isUser ? user.profileImage : utility.profileImage} 
+                              alt="Profile" 
+                              className="w-full h-full object-cover" 
+                            />
+                          ) : (
+                            <User className="w-6 h-6 text-white" />
+                          )}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-gray-900">
@@ -242,13 +293,17 @@ const NavLinkContent = () => {
                         </div>
                       </div>
                     </div>
-                    <Link 
-                      to="/about" 
-                      className="w-full py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 block mb-2 border border-transparent hover:border-[#10B981]/20"
-                      onClick={() => setIsUserMenuOpen(false)}
+                    <button
+                      onClick={() => {
+                        const settingsRoute = isProvider ? '/provider-settings' : '/settings';
+                        navigate(settingsRoute);
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-[#10B981]/10 hover:to-[#0047AB]/10 hover:text-[#0047AB] font-semibold transition-all duration-300 block mb-2 border border-transparent hover:border-[#10B981]/20 flex items-center"
                     >
-                      About Us
-                    </Link>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
+                    </button>
                     <button 
                       onClick={() => {
                         handleLogout();

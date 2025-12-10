@@ -100,3 +100,26 @@ exports.updateStatus = async (req, res) => {
   }
 };
 
+module.exports.updateProfile = async (req, res) => {
+    try {
+        const { fullname, email, contact, profileImage, profession } = req.body;
+        const utilityId = req.utility._id;
+        
+        const updatedUtility = await utilityModel.findByIdAndUpdate(
+            utilityId,
+            {
+                fullname,
+                email,
+                contact,
+                profileImage,
+                profession
+            },
+            { new: true }
+        );
+        
+        res.status(200).json({ utility: updatedUtility });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update profile' });
+    }
+}
+

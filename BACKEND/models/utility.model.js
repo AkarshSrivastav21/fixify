@@ -49,7 +49,11 @@ const utilitySchema = new mongoose.Schema({
     enum: ['active', 'inactive', 'busy'],
     default: 'inactive',
   },
-});
+  profileImage: {
+    type: String,
+    default: ''
+  },
+}, { timestamps: true });
 
 // 🔐 Hash password before saving
 

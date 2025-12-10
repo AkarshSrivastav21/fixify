@@ -33,9 +33,31 @@ const Userlogin = () => {
         const data = response.data;
         // Clear any provider data
         localStorage.removeItem('utilityData');
-        setUser(data.user);
+        
+        // Check for saved profile data from previous session
+        const tempUserProfile = localStorage.getItem('tempUserProfile');
+        let finalUserData = data.user;
+        
+        if (tempUserProfile) {
+          try {
+            const savedProfile = JSON.parse(tempUserProfile);
+            // Merge with saved profile data
+            finalUserData = {
+              ...data.user,
+              fullname: savedProfile.fullname || data.user.fullname,
+              profileImage: savedProfile.profileImage || data.user.profileImage,
+              phone: savedProfile.phone || data.user.phone
+            };
+            // Clean up temp data
+            localStorage.removeItem('tempUserProfile');
+          } catch (e) {
+            console.log('Error parsing temp user data');
+          }
+        }
+        
+        setUser(finalUserData);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userData', JSON.stringify(data.user));
+        localStorage.setItem('userData', JSON.stringify(finalUserData));
         navigate('/portal');
       }
     } catch (error) {

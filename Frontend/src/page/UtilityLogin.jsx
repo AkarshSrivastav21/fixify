@@ -45,9 +45,34 @@ const navigate = useNavigate();
         const data = response.data;
         // Clear any user data
         localStorage.removeItem('userData');
-        setUtility(data.utility);
+        
+        // Check for saved profile data from previous session
+        const tempUtilityProfile = localStorage.getItem('tempUtilityProfile');
+        const tempProviderProfile = localStorage.getItem('tempProviderProfile');
+        let finalUtilityData = data.utility;
+        
+        if (tempUtilityProfile || tempProviderProfile) {
+          try {
+            const savedProfile = JSON.parse(tempUtilityProfile || tempProviderProfile);
+            // Merge with saved profile data
+            finalUtilityData = {
+              ...data.utility,
+              fullname: savedProfile.fullname || data.utility.fullname,
+              profileImage: savedProfile.profileImage || data.utility.profileImage,
+              contact: savedProfile.contact || data.utility.contact,
+              profession: savedProfile.profession || data.utility.profession
+            };
+            // Clean up temp data
+            localStorage.removeItem('tempUtilityProfile');
+            localStorage.removeItem('tempProviderProfile');
+          } catch (e) {
+            console.log('Error parsing temp utility data');
+          }
+        }
+        
+        setUtility(finalUtilityData);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('utilityData', JSON.stringify(data.utility));
+        localStorage.setItem('utilityData', JSON.stringify(finalUtilityData));
         navigate('/provider-landing');
       }
     } catch (error) {

@@ -26,6 +26,23 @@ const UtilityContext = ({ children }) => {
     setIsLoading(false);
   }, []);
 
+  // Listen for localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const utilityData = localStorage.getItem("utilityData");
+      if (utilityData) {
+        try {
+          setUtility(JSON.parse(utilityData));
+        } catch (e) {
+          console.error("Error parsing utility data:", e);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const logout = () => {
     setUtility(null);
     localStorage.removeItem('token');

@@ -1,4 +1,3 @@
-// Global toast notification system
 let toastContainer = null;
 
 const createToastContainer = () => {
@@ -59,12 +58,10 @@ const showToast = (message, type = 'info', duration = 4000) => {
   
   container.appendChild(toast);
   
-  // Animate in
   setTimeout(() => {
     toast.style.transform = 'translateX(0)';
   }, 10);
   
-  // Auto remove
   const removeToast = () => {
     toast.style.transform = 'translateX(100%)';
     setTimeout(() => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, MapPin, CreditCard, Star, Shield, CheckCircle, Navigation } from 'lucide-react';
+import { showToast } from '../utils/toast.js';
 
 const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
   const [formData, setFormData] = useState({
@@ -90,7 +91,7 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
     setIsGettingLocation(true);
     
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by this browser.');
+      showToast('Geolocation is not supported by this browser.', 'error');
       setIsGettingLocation(false);
       return;
     }
@@ -140,11 +141,12 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
           setFormData(prev => ({ ...prev, address: addressText }));
           setIsGettingLocation(false);
           
+          showToast('📍 Location detected successfully!', 'success');
           console.log('Current location set:', addressText);
           
         } catch (error) {
           console.error('Error processing location:', error);
-          alert('Error processing your location. Please try again.');
+          showToast('Error processing your location. Please try again.', 'error');
           setIsGettingLocation(false);
         }
       },
@@ -167,7 +169,7 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
             break;
         }
         
-        alert(errorMessage);
+        showToast(errorMessage, 'error');
         setIsGettingLocation(false);
       },
       options
@@ -198,6 +200,7 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
     
     // Validation
     if (!formData.date || !formData.time || !formData.address) {
+      showToast('Please fill in all required fields', 'error');
       onError('Please fill in all required fields');
       return;
     }
@@ -208,6 +211,7 @@ const BookingModal = ({ service, userId, onClose, onConfirm, onError }) => {
       address: selectedAddress?.address || formData.address
     };
 
+    showToast('🎉 Booking confirmed successfully! You will be redirected to dashboard.', 'success');
     onConfirm(finalFormData);
   };
 

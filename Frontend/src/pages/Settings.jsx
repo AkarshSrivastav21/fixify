@@ -4,7 +4,7 @@ import { Camera, User, Mail, Phone, Save, ArrowLeft, Edit3 } from 'lucide-react'
 import { UserDataContext } from '../context/UserContext';
 import { UtilityDataContext } from '../context/UtilityContext';
 import NavLinkContent from './NavLinkContent';
-import Toast from '../components/Toast';
+import { showToast } from '../utils/toast.js';
 import axios from 'axios';
 
 const Settings = () => {
@@ -37,7 +37,7 @@ const Settings = () => {
   
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+
 
   // Load current user data on component mount
   useEffect(() => {
@@ -89,7 +89,7 @@ const Settings = () => {
 
   const handleSave = async () => {
     if (!formData.firstname || !formData.lastname || !formData.email) {
-      setToast({ message: 'Please fill all required fields', type: 'warning' });
+      showToast('Please fill all required fields', 'warning');
       return;
     }
 
@@ -149,13 +149,13 @@ const Settings = () => {
       }
       
       // Success toast and redirect to dashboard
-      setToast({ message: 'Profile updated successfully!', type: 'success' });
+      showToast('Profile updated successfully!', 'success');
       setTimeout(() => {
         navigate('/dashboard');
       }, 2000);
     } catch (error) {
       console.error('Save failed:', error);
-      setToast({ message: 'Failed to save changes. Please try again.', type: 'error' });
+      showToast('Failed to save changes. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -316,15 +316,7 @@ const Settings = () => {
           </div>
         </div>
       </div>
-      
-      {/* Toast Notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+
     </div>
   );
 };

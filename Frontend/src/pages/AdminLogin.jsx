@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { createApiUrl } from '../utils/api';
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -16,7 +17,7 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/login`, credentials);
+      const response = await axios.post(createApiUrl('/admin/login'), credentials);
       localStorage.setItem('adminToken', response.data.token);
       localStorage.setItem('adminUser', JSON.stringify(response.data.admin));
       navigate('/admin/dashboard');

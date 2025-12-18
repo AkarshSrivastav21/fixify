@@ -16,7 +16,7 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:4000/admin/login', credentials);
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/login`, credentials);
       localStorage.setItem('adminToken', response.data.token);
       localStorage.setItem('adminUser', JSON.stringify(response.data.admin));
       navigate('/admin/dashboard');

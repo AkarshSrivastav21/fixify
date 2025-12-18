@@ -37,12 +37,13 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('adminToken');
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
+      const baseUrl = import.meta.env.VITE_BASE_URL;
       const [statsRes, usersRes, providersRes, bookingsRes, servicesRes] = await Promise.all([
-        axios.get('http://localhost:4000/admin/dashboard', config),
-        axios.get('http://localhost:4000/admin/users', config),
-        axios.get('http://localhost:4000/admin/providers', config),
-        axios.get('http://localhost:4000/admin/bookings', config),
-        axios.get('http://localhost:4000/admin/services', config)
+        axios.get(`${baseUrl}/admin/dashboard`, config),
+        axios.get(`${baseUrl}/admin/users`, config),
+        axios.get(`${baseUrl}/admin/providers`, config),
+        axios.get(`${baseUrl}/admin/bookings`, config),
+        axios.get(`${baseUrl}/admin/services`, config)
       ]);
 
       setStats(statsRes.data);
@@ -53,7 +54,7 @@ const AdminDashboard = () => {
 
       // Fetch feedback separately to avoid breaking main dashboard
       try {
-        const feedbackRes = await axios.get('http://localhost:4000/feedback/all');
+        const feedbackRes = await axios.get(`${baseUrl}/feedback/all`);
         setFeedback(feedbackRes.data.feedbacks || []);
       } catch (feedbackError) {
         console.error('Error fetching feedback:', feedbackError);
@@ -70,7 +71,7 @@ const AdminDashboard = () => {
     if (!confirm('Are you sure?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:4000/admin/users/${userId}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(users.filter(user => user._id !== userId));
@@ -83,7 +84,7 @@ const AdminDashboard = () => {
     if (!confirm('Are you sure?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:4000/admin/providers/${providerId}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/providers/${providerId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProviders(providers.filter(provider => provider._id !== providerId));
@@ -95,7 +96,7 @@ const AdminDashboard = () => {
   const addUser = async (userData) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.post('http://localhost:4000/admin/users', userData, {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/users`, userData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers([...users, response.data.user]);
@@ -110,7 +111,7 @@ const AdminDashboard = () => {
   const addProvider = async (providerData) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.post('http://localhost:4000/admin/providers', providerData, {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/providers`, providerData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProviders([...providers, response.data.provider]);
@@ -125,7 +126,7 @@ const AdminDashboard = () => {
   const addService = async (serviceData) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.post('http://localhost:4000/admin/services', serviceData, {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/services`, serviceData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServices([...services, response.data.service]);
@@ -141,7 +142,7 @@ const AdminDashboard = () => {
     if (!confirm('Are you sure?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:4000/admin/services/${serviceId}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/services/${serviceId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServices(services.filter(service => service._id !== serviceId));
@@ -153,7 +154,7 @@ const AdminDashboard = () => {
   const editService = async (serviceId, serviceData) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.put(`http://localhost:4000/admin/services/${serviceId}`, serviceData, {
+      const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/services/${serviceId}`, serviceData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServices(services.map(service => 

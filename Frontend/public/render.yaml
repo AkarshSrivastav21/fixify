@@ -1,3 +1,4 @@
+# Maintained by Akarsh Srivastav
 services:
   - type: web
     name: fixify-frontend

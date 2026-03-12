@@ -1,3 +1,4 @@
+// Maintained by Akarsh Srivastav
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import "./styles/shimmer.css";
